@@ -22,7 +22,8 @@ const startApplication = async () => {
 };
 
 await startApplication();
-app.use(json());
+app.use(express.json());
+
 app.use(taskRouter, sanitize.sanitizeQueryParams);
 
 app.listen(port, () => {

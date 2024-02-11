@@ -19,7 +19,7 @@ class YoutubeService:
         self.DB = None  # Value of db connection stored here
         self.client = None
         self.config_values: dict  #Stores all db connection details and api keys and all paramters in .ini file
-
+        self.API_EXPIRY_COUNT=0
     def connect_to_db(self,
                       count_of_retry,
                       url=None,
@@ -43,20 +43,20 @@ class YoutubeService:
             print("Retrying in connection to db")
             self.connect_to_db(count_of_retry=count_of_retry + 1)
 
-    """
-    @param request : json
-    """
+    def fetch_api_keys(self):
+        #This functcion will query a db and return fresh api tokens
+        return self.config_values['API_KEY']
 
     async def save_to_mongo(self, json_data, query, collection_name=None):
         
         try:
-            print("Collection Name",self.DB[collection_name])
+
             collection_name = self.config_values["MONGODB_COLLECTION"] if collection_name is None else collection_name
             print("Collection Name",self.DB[collection_name])
             # Create or select a collection
             collection = self.DB[collection_name]
             # Insert JSON data into the collection
-            json_data["query"] = query
+
             result= await collection.insert_many(json_data)
             return result
         except Exception as e:
@@ -70,15 +70,25 @@ class YoutubeService:
             async with session.get(url) as response:
                 print("Read {0} from {1}".format(response.status, response))
                 if response.status == 200:
+                    self.API_EXPIRY_COUNT=0
                     data = await response.json()
                     items = data.get("items", [])
                    
                     try:
-                        await self.save_to_mongo(json_data=items, query=query)
+                        x=await self.save_to_mongo(json_data=items, query=query)
+                        print(x)
                         print("Succesfully saved data",query)
                     except Exception as e:
                         print("Error while saving data ",e)
-                        
+                if response.status == 403:
+                    if(self.API_EXPIRY_COUNT<5):
+                        self.API_EXPIRY_COUNT=self.API_EXPIRY_COUNT+1
+                        self.config_values['API_KEY']=self.fetch_api_keys()
+                        self.download_data(session, query)
+                    else:
+                        raise ValueError("Fresh API keys cannot be fetched")
+
+
 
                 else:
                     print("Failed to search YouTube:", response)

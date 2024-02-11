@@ -26,14 +26,19 @@ services:
 
     restart: always
     image: mongo:7.0.5
+
     volumes:
-      - ./data:/data/db
+      - mongodb_data:/data/db
+
     networks:
       - express-mongo
     ports:
       - 27017:27017
     expose:
       - 27017
+volumes:
+  mongodb_data:
+
 networks:
   react-express:
   express-mongo:

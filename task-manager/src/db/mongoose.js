@@ -3,7 +3,7 @@ import pkg from "mongodb";
 const { MongoClient } = pkg;
 
 let client;
-let count =0
+let count = 0;
 const connectToMongoDB = async () => {
   try {
     let database;
@@ -18,14 +18,14 @@ const connectToMongoDB = async () => {
     }
     return [client, database];
   } catch (error) {
-    console.error(process.env.MONGODB_URL)
-    if(count<=5){
+    console.error(process.env.MONGODB_URL);
+    if (count <= 5) {
       console.log("Tryin for connecting to database", count);
       setTimeout(connectToMongoDB, 2000);
-      count=count+1
-    }else{
-      console.log("COUNT",count)
-      console.log("DIDI")
+      count = count + 1;
+    } else {
+      console.log("COUNT", count);
+      console.log("DIDI");
       throw error;
     }
     console.error("Error connecting to MongoDB:retry after 2 seconds.", error);

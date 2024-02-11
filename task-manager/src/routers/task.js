@@ -25,9 +25,11 @@ router.get("/search", async (req, res) => {
     const collection = mongoClient.collection(process.env.MONGODB_COLLECTION);
     // Define your query parameters
 
+    const skip = req.query.skipTo || 0;
+    const limit = req.query.limit || 0;
     const filter = {
       $text: {
-        $search: req.query.query,
+        $search: "variables",
       },
     };
     const projection = {
@@ -37,13 +39,11 @@ router.get("/search", async (req, res) => {
     const sort = {
       "snippet.publishTime": sortBy[parts[0]],
     };
-    const skip = req.query.skipTo || 0;
-    const limit = req.query.limit || 0;
 
-    // Perform the query
-    const result = await collection
-      .find(filter, { projection, sort, skip, limit })
-      .toArray();
+    const coll = collection;
+    const cursor = coll.find(filter, { projection, sort, limit });
+    const result = await cursor.toArray();
+
     res.status(200).send(result);
   } catch (e) {
     console.log(e);
