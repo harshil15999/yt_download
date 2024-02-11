@@ -5,10 +5,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "env-cmd ./config/.env nodemon src/index.js",
+    "start": "env-cmd ./config/dev.env nodemon src/index.js",
     "format": "prettier --write {**/,}*.js",
     "lint": "prettier --check {**/,}*.js",
-    "dev": "env-cmd ./config/.env nodemon src/index.js"
+    "dev": "env-cmd ./config/dev.env nodemon src/index.js"
   },
   "keywords": [],
   "author": "",

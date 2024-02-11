@@ -3,7 +3,7 @@ import pkg from "mongodb";
 const { MongoClient } = pkg;
 
 let client;
-
+let count =0
 const connectToMongoDB = async () => {
   try {
     let database;
@@ -18,31 +18,20 @@ const connectToMongoDB = async () => {
     }
     return [client, database];
   } catch (error) {
-    console.error("Error connecting to MongoDB:", error);
-    throw error;
+    console.error(process.env.MONGODB_URL)
+    if(count<=5){
+      console.log("Tryin for connecting to database", count);
+      setTimeout(connectToMongoDB, 2000);
+      count=count+1
+    }else{
+      console.log("COUNT",count)
+      console.log("DIDI")
+      throw error;
+    }
+    console.error("Error connecting to MongoDB:retry after 2 seconds.", error);
   }
 };
-
-const db = async () => {
-  try {
-    mongoose.connect(process.env.MONGODB_URL, {
-      useNewUrlParser: true,
-    });
-    console.log("Mongoose connected");
-  } catch (error) {
-    console.log(
-      "[Error] MongoDB did not get connected due to issue " + error.message
-    );
-    process.exit(1);
-  }
-};
-
-//TODO: FIGURE OUT HOW TO WRITE THIS
-// db.connection.on('error', function(err){
-//     console.error("connection error;", err);
-// });
 
 export default {
-  db,
   connectToMongoDB,
 };

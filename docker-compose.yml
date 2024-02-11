@@ -1,23 +1,42 @@
 version: "3"
 
 services:
+
+  microservice:
+    build: ./yt_service
+    ports:
+      - 8000:8000
+    environment:
+      APP_NAME: youtube_service
+      MONGODB_URL: mongodb://mongo:27017
+
   backend:
+    restart: always
     build: ./task-manager
     ports:
       - 3000:3000
     environment:
-      APP_NAME: data_apis
-      PORT: 3000
+      APP_NAME: youtube_api
+      MONGODB_URL: mongodb://mongo:27017
     depends_on:
       - mongo
+    networks:
+      - express-mongo
   mongo:
+
     restart: always
     image: mongo:7.0.5
     volumes:
       - ./data:/data/db
     networks:
       - express-mongo
+    ports:
+      - 27017:27017
     expose:
       - 27017
+networks:
+  react-express:
+  express-mongo:
+
 
   

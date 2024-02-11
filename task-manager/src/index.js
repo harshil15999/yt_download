@@ -9,8 +9,7 @@ const startApplication = async () => {
   try {
     const [client, database] = await _.connectToMongoDB();
     app.set("mongoClient", database);
-    // Your application logic here, using the 'mongoClient' instance
-    // Example: Close the MongoDB connection when the application exits
+
     process.on("SIGINT", async () => {
       await client.close();
       console.log("MongoDB connection closed");
@@ -18,6 +17,7 @@ const startApplication = async () => {
     });
   } catch (error) {
     console.error("Error closing  the application:", error);
+    process.exit(1);
   }
 };
 

@@ -22,7 +22,7 @@ router.get("/search", async (req, res) => {
       sortBy["publishTime"] = 1;
     }
 
-    const collection = mongoClient.collection(process.env.CollectionName);
+    const collection = mongoClient.collection(process.env.MONGODB_COLLECTION);
     // Define your query parameters
 
     const filter = {
