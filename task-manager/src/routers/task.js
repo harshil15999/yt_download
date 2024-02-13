@@ -60,24 +60,23 @@ router.get("/search", async (req, res) => {
     res.status(200).send(results);
 
   } catch (e) {
-    if(e.code==27){
+    if (e instanceof Error && e.message.includes('text index required for $text query')){
       // Index Not found 
       try{
         const indexFields = { 'snippet.title': 'text', 'snippet.description': 'text' };
 
         // Create the text index
-        const indexName = await collection.createIndex(indexFields);
+        const indexName = await req.app.get("mongoClient").collection(process.env.MONGODB_COLLECTION).createIndex(indexFields);
         console.log(`Text index created successfully. Index name: ${indexName}`);
         res.status(200).send(await fetch_data(req))
         
 
-
       } catch(err){
-        console.err("Error in creating text index",err)
+        console.error("Error in creating text index",err)
         
       }
     }
-    console.log(e);
+    console.error("Error while getting data:",e);
     res.status(500).send(e);
   }
 });
