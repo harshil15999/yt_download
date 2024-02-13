@@ -100,8 +100,12 @@ class YoutubeService:
                    
                     try:
                         x=await self.save_to_mongo(json_data=items, query=query)
-                        print(x)
-                        print("Succesfully saved data",query)
+                        
+                        if(x.acknowledged==True):
+                            print("Succesfully saved data",query)
+                        else:
+                            print("ERROR ########### Data not saved")
+                        
                     except Exception as e:
                         print("Error while saving data ",e)
                 if response.status == 403:
@@ -111,7 +115,6 @@ class YoutubeService:
                         self.download_data(session, query)
                     else:
                         raise ValueError("Fresh API keys cannot be fetched")
-
 
 
                 else:
@@ -163,14 +166,16 @@ if __name__ == "__main__":
     youtube_service.config_values = config_values
 
     api_key = youtube_service.config_values['API_KEY']
+    print(type(args.count))
     count = int(args.count)
+
     counter = 0
     try:
-        youtube_service.connect_to_db(5)
+        youtube_service.connect_to_db(youtube_service.MAX_RETRIES)
     except Exception as e:
         raise ValueError("Could not connect to DB")
 
-    while (count > 0 and counter < count):
+    while (count >0 and counter < count):
         start_time = time.time()
         asyncio.run(youtube_service.download_query_data(QUERIES))
         duration = time.time() - start_time
