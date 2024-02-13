@@ -2,14 +2,6 @@ version: "3"
 
 services:
 
-  microservice:
-    build: ./yt_service
-    ports:
-      - 8000:8000
-    environment:
-      APP_NAME: youtube_service
-      MONGODB_URL: mongodb://mongo:27017
-
   backend:
     restart: always
     build: ./task-manager
