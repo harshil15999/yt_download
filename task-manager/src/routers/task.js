@@ -1,15 +1,12 @@
 import { Router } from "express";
 const router = new Router();
 
-// GET /search?query=String
-// GET /search?limit=10&skip=20
-// GET /search?sortBy=publishTime:desc
-router.get("/search", async (req, res) => {
+const fetch_data=async(req)=>{
   try {
-    const match = {};
+    
     const sortBy = {};
     let parts = null;
-
+    console.log(req.query.query)
     // Specify the database and collection
     const mongoClient = req.app.get("mongoClient");
 
