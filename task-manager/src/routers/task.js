@@ -21,28 +21,62 @@ const fetch_data=async(req)=>{
 
     const collection = mongoClient.collection(process.env.MONGODB_COLLECTION);
     // Define your query parameters
-
-    const skip = req.query.skipTo || 0;
-    const limit = req.query.limit || 0;
+    console.log(req.query)
+    const skip = parseInt(req.query.skipTo) || 0;
+    const limit = parseInt(req.query.limit) || 0;
+    console.log("LIMIT is",limit)
     const filter = {
       $text: {
-        $search: "variables",
+        $search: req.query.query, 
       },
     };
     const projection = {
-      _id: 1,
-      snippet: 1,
+      '_id': 1, 
+      'snippet': 1
     };
     const sort = {
-      "snippet.publishTime": sortBy[parts[0]],
+      'snippet.publishTime': sortBy[parts[0]],
     };
 
     const coll = collection;
-    const cursor = coll.find(filter, { projection, sort, limit });
+    const cursor = coll.find(filter, { projection,sort, skip, limit });
     const result = await cursor.toArray();
+    // console.log("results are ",result)
+    return result
+  } catch(err){
+    throw new Error(err)
+  }
+}
 
-    res.status(200).send(result);
+
+
+// GET /search?query=String
+// GET /search?limit=10&skip=20
+// GET /search?sortBy=publishTime:1
+router.get("/search", async (req, res) => {
+  try{
+    console.log("GET request received",req.params)
+    const results=await fetch_data(req)
+    res.status(200).send(results);
+
   } catch (e) {
+    if(e.code==27){
+      // Index Not found 
+      try{
+        const indexFields = { 'snippet.title': 'text', 'snippet.description': 'text' };
+
+        // Create the text index
+        const indexName = await collection.createIndex(indexFields);
+        console.log(`Text index created successfully. Index name: ${indexName}`);
+        res.status(200).send(await fetch_data(req))
+        
+
+
+      } catch(err){
+        console.err("Error in creating text index",err)
+        
+      }
+    }
     console.log(e);
     res.status(500).send(e);
   }
