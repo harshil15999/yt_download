@@ -62,8 +62,27 @@ class YoutubeService:
             collection = self.DB[collection_name]
             # Insert JSON data into the collection
 
-            result= await collection.insert_many(json_data)
+            result= await collection.insert_many(json_data,ordered=False)
+            print(result)
             return result
+        # except errors.BulkWriteError as e:
+        # # Handle the BulkWriteError
+        #     failed_documents = [error['op'] for error in e.details.get('writeErrors', [])]
+        #
+        #     # Output details of the failed documents
+        #     print(f"{len(failed_documents)} documents failed to insert.")
+        #
+        #     # Update the remaining documents
+        #     for document in failed_documents:
+        #         filter_criteria = {"_id": document["_id"]}
+        #         update_data = {"$set": document}
+        #         update_operation = UpdateOne(filter_criteria, update_data, upsert=True)
+        #
+        #         # Update the document with the new data
+        #         collection.bulk_write([update_operation])
+        #         print(f"Updated document with _id {document['_id']}.")
+        #         print(f"Updated document with videoId {document['snippet']['videoId']}")
+
         except Exception as e:
             return e
 
