@@ -6,11 +6,13 @@ import configparser
 import argparse
 import time
 import re
+from pymongo import MongoClient, InsertOne, UpdateOne, errors
+
+from pymongo.errors import BulkWriteError
 
 
 # TOOD: Fetch new api keys on expiration
-# TODO: bulk writes to increase performance
-# TODO: Async database writes check that
+
 
 class YoutubeService:
     def __init__(self):
@@ -30,9 +32,10 @@ class YoutubeService:
             database = self.config_values["MONGODB_DATABASE"] if database is None else database
             # Connect to MongoDB
             # Update the connection string as needed
-            self.client = motor.motor_asyncio.AsyncIOMotorClient(url)
+            self.client = motor.motor_asyncio.AsyncIOMotorClient(url,serverSelectionTimeoutMS=10000)
             # Create or select a database
             self.DB = self.client[database]
+            print("URL used",url) 
             print("Connected to MongoDB")
             print(self.DB)
         except Exception as e:
@@ -46,6 +49,8 @@ class YoutubeService:
     def fetch_api_keys(self):
         #This functcion will query a db and return fresh api tokens
         return self.config_values['API_KEY']
+
+    
 
     async def save_to_mongo(self, json_data, query, collection_name=None):
         
