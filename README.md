@@ -2,7 +2,7 @@
 
 ## Description
 
-This application is designed to fetch the latest videos sorted in reverse chronological order of their publishing date-time from YouTube for a given tag/search query in a paginated response.
+This application is designed to fetch the latest videos sorted in reverse chronological order of their publishing date-time from YouTube for a given tag / search query and return in a paginated response.
 
 ## Components
 
